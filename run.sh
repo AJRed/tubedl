@@ -1,6 +1,5 @@
 #!/bin/bash
 
-ENVPATH="../envs/tubedl"
+ENVPATH="./.env"
 source "$ENVPATH/bin/activate"
 python tubedl.py
-

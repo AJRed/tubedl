@@ -1,120 +1,76 @@
-from pytube import YouTube
-import tkinter as tk
-from tkinter import ttk
+from config import AppConfig, config_error
+from tk_gui import TkGUI
 
-
-class GUI:
-	def __init__(self):
-		self.url = ""
-		# Create components
-		self.window = tk.Tk()
-		self.menu_bar = tk.Menu(master=self.window)
-		self.file_menu = tk.Menu(self.menu_bar, tearoff=False)
-		self.edit_menu = tk.Menu(self.menu_bar, tearoff=False)
-		self.help_menu = tk.Menu(self.menu_bar, tearoff=False)
-		self.prefs_menu = tk.Menu(self.file_menu, tearoff=0)
-		self.frame_main = tk.Frame(master=self.window)
-		self.lbl_title = tk.Label(master=self.frame_main,
-							text="Youtube Downloader")
-		self.lbl_info = tk.Label(master=self.frame_main,
-						   text="Downloads highest quality\nprogressive stream available.")
-		self.btn_get = tk.Button(master=self.frame_main,
-						   text="Get", command=self._on_download_button_clicked)
-		self.fld_url = tk.Entry(master=self.frame_main)
-
-		# Window setup
-		self.window.title("TubeDL")
-		self.window.geometry("320x150")
-
-		# Menu bar setup
-		self.window.configure(menu=self.menu_bar)
-		self.menu_bar.add_cascade(
-			label="File",
-			menu=self.file_menu,
-			underline=0,
-		)
-		self.menu_bar.add_cascade(
-			label="Edit",
-			menu=self.edit_menu,
-			underline=0
-		)
-		self.menu_bar.add_cascade(
-			label="Help",
-			menu=self.help_menu,
-			underline=0
-		)
-
-		# File menu
-		self.file_menu.add_cascade(
-			label="Preferences",
-			underline=0
-		)
-		self.file_menu.add_command(
-			label="Exit",
-			command=self.window.destroy,
-			underline=1
-		)
-
-		# Edit menu
-
-		# Help menu
-		self.help_menu.add_command(
-			label="About",
-			command=self._on_about_pressed
-		)
-		
-		# Prefs sub-menu
-		self.prefs_menu.add_command(label="Keyboard Shortcuts")
-		self.prefs_menu.add_command(label="Color Themes")
-
-		# Layout
-		
-		self.frame_main.grid(row=1, column=1)
-		self.lbl_title.grid(row=2, column=1)
-		self.lbl_info.grid(row=3, column=1)
-		self.btn_get.grid(row=2, column=0)
-		self.fld_url.grid(row=2, column=1)
-
-	
-	def _key_handler(self, event):
-		match event.keycode:
-			case 9:
-				self.window.destroy()
-			case 36:
-				self._on_download_button_clicked()
-			case _:
-				print("Key Unhandled")
-		print(event.char, event.keysym, event.keycode)
-	
-
-	def start(self):
-		self.window.mainloop()
-
-	def _on_download_button_clicked(self):
-		self.url = self.fld_url.get()
-		self.lbl_info["fg"] = "#7A7A00"
-		self.lbl_info["text"] = "Download in progress..."
-		self.window.update()
-		try:
-			yt = YouTube(self.url)
-			yt.streams.first().download()
-			self.lbl_info["fg"] = "#00AA00"
-			self.lbl_info["text"] = "Download Complete!"
-			self.window.update()
-		except Exception as e:
-			self.lbl_info["fg"] = "#FF0000"
-			self.lbl_info["text"] = "Download Error: Check URL."
-			print(e)
-
-	def _on_about_pressed(self):
-		pass
-
-	def _on_preferences_pressed(self):
-		pass
+AppVersion = "0.0.1"
+Frontend = "Tk"
+Backend = "yt_dlp"
 
 
 if (__name__ == "__main__"):
-	app = GUI()
-	app.window.bind("<Key>", app._key_handler)
-	app.start()
+    cfg = AppConfig(
+        AppVersion,
+        Frontend,
+        Backend,
+        {
+            "DL_PLAYLIST": False,
+            "SAVE_THUMBNAIL": True,
+            "SHOW_THUMBNAIL": False,
+            "SKIP_DOWNLOAD": False,
+        },
+        {
+            "download_archive": ".ledger",
+            "list_thumbnails": False,
+            "quiet": True,
+            "no_warnings": True,
+            "forcefilename": True,
+            "simulate": False,
+            "progress_hooks": []
+        },
+        {
+            "OPT_START_COL": 1,
+            "OPT_COLS": 2,
+            "OPT_START_ROW": 2,
+            "OPT_ROWS": 4,
+        },
+        {
+            "IDLE": "Downloads highest quality\n \
+                     progressive stream available.",
+            "IN_PROGRESS": "Download in progress...",
+            "COMPLETE": "Download Complete!",
+            "FAILED": "Download Failed, check URL."
+        },
+        {
+            "SIZE": (128, 128)
+        },
+        {
+            "PRINT_KEYS": False,
+            "PRINT_UNHANDLED": False
+        },
+        {
+            "URL": "",
+            "THREADS": 0
+        }
+    )
 
+    if cfg.gui_framework == "Tk":
+        app = TkGUI(cfg)
+        app.component["WINDOW"]["ROOT"].bind("<Key>", app._key_handler)
+        app.start()
+    else:
+        config_error("UnknownFramework")
+
+
+# PyTube
+# from pytube import YouTube
+    # def get_video_pytube(self, url):
+        # try:
+            # yt = YouTube(url)
+            # yt.streams.first().download()
+            # self.component["LABEL"]["INFO"]["fg"] = "#00AA00"
+            # self.component["LABEL"]["INFO"]["text"] = self.cfg.info_text["COMPLETE"]
+            # # self.window.update()
+            # self.component["WINDOW"]["ROOT"].update()
+        # except Exception as e:
+            # self.component["LABEL"]["INFO"]["fg"] = "#FF0000"
+            # self.component["LABEL"]["INFO"]["text"] = self.cfg.info_text["FAILED"]
+            # print(e)

@@ -1,10 +1,10 @@
 
 
-ENVPATH="env"
+ENVPATH="$(pwd)/env"
 
 
 update_libs() {
-	source $ENVPATH/bin/activate
+	source "$ENVPATH/bin/activate"
 
 	echo Installing dependencies.
 	python -m pip install --requirement requirements.txt
